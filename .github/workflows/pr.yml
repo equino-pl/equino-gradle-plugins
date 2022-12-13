@@ -13,5 +13,20 @@ jobs:
           java-version: 17
           distribution: adopt
       - name: Build and test
-        run: |
-          ./gradlew --no-daemon --stacktrace clean build test
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: |
+            --no-daemon
+            --stacktrace
+            clean
+            build
+            test
+      - name: Publish
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: |
+            --no-daemon
+            --stacktrace
+            -PequinoRepository.username=${{ secrets.GITHUB_ACTOR }}
+            -PequinoRepository.password=${{ secrets.GITHUB_TOKEN }}
+            publish

@@ -27,6 +27,7 @@ subprojects {
     apply plugin: 'groovy'
     apply plugin: 'java-gradle-plugin'
     apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'maven-publish'
     // https://imperceptiblethoughts.com/shadow/plugins/#special-handling-of-the-java-gradle-plugin-development-plugin
 //    apply plugin: 'ovh.equino.publish'
 
@@ -41,6 +42,20 @@ subprojects {
     }
 
     tasks.jar.finalizedBy shadowJar
+
+
+    publishing {
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = "https://maven.pkg.github.com/marcinciapa/equino-gradle-plugins"
+                credentials {
+                    username = project.findProperty("equinoRepository.username")
+                    password = project.findProperty("equinoRepository.password")
+                }
+            }
+        }
+    }
 }
 
 //import static ovh.equino.gradle.plugins.docker.config.DeployMode.DOCKER_NO_REGISTRY
