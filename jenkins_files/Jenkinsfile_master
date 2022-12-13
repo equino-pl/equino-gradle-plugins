@@ -1,0 +1,56 @@
+pipeline {
+    agent any
+
+    triggers {
+        cron('@midnight')
+    }
+
+    options {
+        lock resource: 'equino-gradle-plugins_master'
+        buildDiscarder(logRotator(daysToKeepStr: '10'))
+    }
+
+    stages {
+
+        stage('Upgrade version') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'ci_bitbucket_app_password', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh './gradlew --no-daemon --stacktrace clean release -PequinoVersion.gitUsername=$USERNAME -PequinoVersion.gitPassword=$PASSWORD'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'git branch -m master'
+
+                sh './gradlew --no-daemon --stacktrace clean build test -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+                sh './gradlew --no-daemon --stacktrace cmdNoRestart -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+                sh './gradlew --no-daemon --stacktrace scriptNoRestart -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+                sh './gradlew --no-daemon --stacktrace cmdWithRestart -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+                sh './gradlew --no-daemon --stacktrace testCleanUp -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+
+//                sh './gradlew --no-daemon --stacktrace clean build test -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_WITH_REGISTRY'
+//                sh './gradlew --no-daemon --stacktrace testCleanUp -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_WITH_REGISTRY'
+
+                script {
+                    currentBuild.displayName = readFile file: 'build/ovh.equino.version/currentVersion'
+                }
+            }
+
+        }
+
+        stage('Publish') {
+            steps {
+                sh './gradlew --no-daemon --stacktrace publish -x build -x jar -x shadowJar'
+            }
+        }
+
+    }
+
+    post {
+        cleanup {
+            deleteDir()
+        }
+    }
+}

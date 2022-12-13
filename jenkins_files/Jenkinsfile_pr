@@ -1,0 +1,54 @@
+pipeline {
+    agent any
+
+    options {
+        lock resource: 'equino-gradle-plugins_pr'
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    environment {
+        GIT_LOCAL_BRANCH = '${CHANGE_BRANCH}'
+    }
+
+    stages {
+
+        stage('Check release readiness') {
+            steps {
+                sh 'git branch -m ${CHANGE_BRANCH}'
+                sh './gradlew --no-daemon --stacktrace verifyRelease'
+            }
+        }
+
+        stage('Build') {
+            steps {
+
+                sh './gradlew --no-daemon --stacktrace clean build test -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+                sh './gradlew --no-daemon --stacktrace cmdNoRestart -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+                sh './gradlew --no-daemon --stacktrace scriptNoRestart -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+                sh './gradlew --no-daemon --stacktrace cmdWithRestart -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+                sh './gradlew --no-daemon --stacktrace testCleanUp -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+
+//                sh './gradlew --no-daemon --stacktrace clean build test -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_WITH_REGISTRY'
+//                sh './gradlew --no-daemon --stacktrace testCleanUp -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_WITH_REGISTRY'
+
+                script {
+                    currentBuild.displayName = readFile file: 'build/ovh.equino.version/currentVersion'
+                }
+            }
+
+        }
+
+        stage('Publish') {
+            steps {
+                sh './gradlew --no-daemon --stacktrace publish -x build -x jar -x shadowJar'
+            }
+        }
+
+    }
+
+    post {
+        cleanup {
+            deleteDir()
+        }
+    }
+}

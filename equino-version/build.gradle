@@ -1,0 +1,17 @@
+gradlePlugin {
+    plugins {
+        dockerPlugin {
+            id = 'ovh.equino.version'
+            implementationClass = 'ovh.equino.gradle.plugins.version.EquinoVersionPlugin'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':equino-commons')
+    implementation 'pl.allegro.tech.build:axion-release-plugin:1.14.3'
+}

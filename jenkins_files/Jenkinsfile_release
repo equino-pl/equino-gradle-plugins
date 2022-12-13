@@ -1,0 +1,57 @@
+pipeline {
+    agent any
+
+    options {
+        lock resource: 'equino-gradle-plugins_release'
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+    }
+
+    stages {
+
+        stage('Check release readiness') {
+            steps {
+                sh 'git branch -m ${CHANGE_BRANCH}'
+                sh './gradlew --no-daemon --stacktrace verifyRelease'
+                withCredentials([usernamePassword(credentialsId: 'ci_bitbucket_app_password', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh 'if curl -L -u ${USERNAME}:${PASSWORD} https://api.bitbucket.org/2.0/repositories/equino-workspace/equino-gradle-plugins/pullrequests/${CHANGE_ID}/diffstat | grep \'"status": "merge conflict"\'; then echo "Conflicts detected, resolve conflicts before release"; exit 1; else echo "No conflicts detected"; exit 0; fi;'
+                    sh 'if curl -L -u ${USERNAME}:${PASSWORD} https://api.bitbucket.org/2.0/repositories/equino-workspace/equino-gradle-plugins/pullrequests/${CHANGE_ID}/statuses | grep \'"state": "SUCCESSFUL"\'; then echo "Successful build detected"; exit 0; else echo "Successful build not detected"; exit 1; fi;'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+
+                sh './gradlew --no-daemon --stacktrace clean build test -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+                sh './gradlew --no-daemon --stacktrace cmdNoRestart -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+                sh './gradlew --no-daemon --stacktrace scriptNoRestart -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+                sh './gradlew --no-daemon --stacktrace cmdWithRestart -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+                sh './gradlew --no-daemon --stacktrace testCleanUp -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+
+//                sh './gradlew --no-daemon --stacktrace clean build test -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_WITH_REGISTRY'
+//                sh './gradlew --no-daemon --stacktrace testCleanUp -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+
+                script {
+                    currentBuild.displayName = readFile file: 'build/ovh.equino.version/currentVersion'
+                }
+            }
+
+        }
+
+        stage('Merge PR') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'ci_bitbucket_app_password', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh 'curl -L -X POST -u ${USERNAME}:${PASSWORD} https://api.bitbucket.org/2.0/repositories/equino-workspace/equino-gradle-plugins/pullrequests/${CHANGE_ID}/merge'
+                    sh 'curl -L -X DELETE -u ${USERNAME}:${PASSWORD} https://api.bitbucket.org/2.0/repositories/equino-workspace/equino-gradle-plugins/refs/branches/${CHANGE_BRANCH}'
+                }
+            }
+        }
+
+    }
+
+    post {
+        cleanup {
+            deleteDir()
+        }
+    }
+}
