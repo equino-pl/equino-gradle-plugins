@@ -23,6 +23,7 @@ jobs:
             clean
             build
             test
+            currentVersion
       - name: Publish
         uses: gradle/gradle-build-action@v2
         with:
