@@ -33,3 +33,5 @@ jobs:
             -PequinoRepository.username=${{ secrets.GITHUB_ACTOR }}
             -PequinoRepository.password=${{ secrets.GITHUB_TOKEN }}
             publish
+            -x build
+            -x shadowJar
