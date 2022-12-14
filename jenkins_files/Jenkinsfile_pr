@@ -29,7 +29,9 @@ pipeline {
 
         stage('Publish') {
             steps {
-                sh './gradlew --no-daemon --stacktrace publish -x build -x jar -x shadowJar'
+                withCredentials([usernamePassword(credentialsId: 'EquinoNexus', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh './gradlew --no-daemon --stacktrace publish -x build -x jar -x shadowJar -PequinoRepository.username=${USERNAME} -PequinoRepository.password=${PASSWORD}'
+                }
             }
         }
 
