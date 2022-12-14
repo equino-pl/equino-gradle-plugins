@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        jdk 'jdk17'
+    }
+
     options {
 //        lock resource: 'equino-gradle-plugins_pr'
         buildDiscarder(logRotator(numToKeepStr: '10'))
