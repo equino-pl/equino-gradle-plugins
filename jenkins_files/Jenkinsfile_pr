@@ -6,7 +6,6 @@ pipeline {
     }
 
     options {
-//        lock resource: 'equino-gradle-plugins_pr'
         buildDiscarder(logRotator(numToKeepStr: '10'))
     }
 
@@ -16,12 +15,12 @@ pipeline {
 
     stages {
 
-//        stage('Check release readiness') {
-//            steps {
+        stage('Check release readiness') {
+            steps {
 //                sh 'git branch -m ${CHANGE_BRANCH}'
-//                sh './gradlew --no-daemon --stacktrace verifyRelease'
-//            }
-//        }
+                sh './gradlew --no-daemon --stacktrace verifyRelease'
+            }
+        }
 
         stage('Build') {
             steps {
