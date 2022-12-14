@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     options {
-        lock resource: 'equino-gradle-plugins_pr'
+//        lock resource: 'equino-gradle-plugins_pr'
         buildDiscarder(logRotator(numToKeepStr: '10'))
     }
 
@@ -21,12 +21,13 @@ pipeline {
 
         stage('Build') {
             steps {
+                  sh './gradlew --no-daemon --stacktrace clean build test'
 
-                sh './gradlew --no-daemon --stacktrace clean build test -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
-                sh './gradlew --no-daemon --stacktrace cmdNoRestart -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
-                sh './gradlew --no-daemon --stacktrace scriptNoRestart -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
-                sh './gradlew --no-daemon --stacktrace cmdWithRestart -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
-                sh './gradlew --no-daemon --stacktrace testCleanUp -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+//                sh './gradlew --no-daemon --stacktrace clean build test -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+//                sh './gradlew --no-daemon --stacktrace cmdNoRestart -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+//                sh './gradlew --no-daemon --stacktrace scriptNoRestart -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+//                sh './gradlew --no-daemon --stacktrace cmdWithRestart -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
+//                sh './gradlew --no-daemon --stacktrace testCleanUp -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
 
 //                sh './gradlew --no-daemon --stacktrace clean build test -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_WITH_REGISTRY'
 //                sh './gradlew --no-daemon --stacktrace testCleanUp -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_WITH_REGISTRY'
@@ -38,11 +39,11 @@ pipeline {
 
         }
 
-        stage('Publish') {
-            steps {
-                sh './gradlew --no-daemon --stacktrace publish -x build -x jar -x shadowJar'
-            }
-        }
+//        stage('Publish') {
+//            steps {
+//                sh './gradlew --no-daemon --stacktrace publish -x build -x jar -x shadowJar'
+//            }
+//        }
 
     }
 
