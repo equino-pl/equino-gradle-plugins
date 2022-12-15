@@ -3,7 +3,7 @@ When applied to a project, this plugin adds Allegro `axion-release-plugin` handl
 Apply plugin using:
 ```
 plugins {
-    id: 'ovh.equino.version' version: '0.0.14'
+    id: 'ovh.equino.version' version: '0.0.1'
 }
 ```
 

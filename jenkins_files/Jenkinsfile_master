@@ -5,6 +5,10 @@ pipeline {
         jdk 'jdk17'
     }
 
+    environment {
+        GH_ACTOR = 'marcinciapa'
+    }
+
     triggers {
         cron('@midnight')
     }
@@ -17,8 +21,8 @@ pipeline {
 
         stage('Upgrade version') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'ci_bitbucket_app_password', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    sh './gradlew --no-daemon --stacktrace clean release -PequinoVersion.gitUsername=$USERNAME -PequinoVersion.gitPassword=$PASSWORD'
+                withCredentials([string(credentialsId: 'JenkinsGitHubPluginClassicToken', variable: 'TOKEN')]) {
+                    sh './gradlew --no-daemon --stacktrace clean release -PequinoVersion.gitUsername=$GH_ACTOR -PequinoVersion.gitPassword=$TOKEN'
                 }
             }
         }
