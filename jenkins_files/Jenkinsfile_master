@@ -1,12 +1,15 @@
 pipeline {
     agent any
 
+    tools {
+        jdk 'jdk17'
+    }
+
     triggers {
         cron('@midnight')
     }
 
     options {
-        lock resource: 'equino-gradle-plugins_master'
         buildDiscarder(logRotator(daysToKeepStr: '10'))
     }
 
@@ -22,22 +25,11 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'git branch -m master'
-
-                sh './gradlew --no-daemon --stacktrace clean build test -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
-                sh './gradlew --no-daemon --stacktrace cmdNoRestart -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
-                sh './gradlew --no-daemon --stacktrace scriptNoRestart -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
-                sh './gradlew --no-daemon --stacktrace cmdWithRestart -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
-                sh './gradlew --no-daemon --stacktrace testCleanUp -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_NO_REGISTRY'
-
-//                sh './gradlew --no-daemon --stacktrace clean build test -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_WITH_REGISTRY'
-//                sh './gradlew --no-daemon --stacktrace testCleanUp -PequinoDocker.remote -PequinoDocker.buildServer=VIENNA -PequinoDocker.deployServer=VIENNA -PequinoDocker.deployMode=DOCKER_WITH_REGISTRY'
-
+                sh './gradlew --no-daemon --stacktrace clean build test'
                 script {
                     currentBuild.displayName = readFile file: 'build/ovh.equino.version/currentVersion'
                 }
             }
-
         }
 
         stage('Publish') {
