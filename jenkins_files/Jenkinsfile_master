@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'jdk17'
+    }
+
+    environment {
+        GH_ACTOR = 'marcinciapa'
+    }
+
+    triggers {
+        cron('@midnight')
+    }
+
+    options {
+        buildDiscarder(logRotator(daysToKeepStr: '10'))
+    }
+
+    stages {
+
+        stage('Upgrade version') {
+            steps {
+                withCredentials([string(credentialsId: 'JenkinsGitHubPluginClassicToken', variable: 'TOKEN')]) {
+                    sh './gradlew --no-daemon --stacktrace clean release -PequinoVersion.gitUsername=$GH_ACTOR -PequinoVersion.gitPassword=$TOKEN'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh './gradlew --no-daemon --stacktrace clean build test'
+                script {
+                    currentBuild.displayName = readFile file: 'build/ovh.equino.version/currentVersion'
+                }
+            }
+        }
+
+        stage('Publish') {
+            steps {
+                sh './gradlew --no-daemon --stacktrace publish -x build -x jar -x shadowJar'
+            }
+        }
+
+    }
+
+    post {
+        cleanup {
+            deleteDir()
+        }
+    }
+}

@@ -1,0 +1,156 @@
+buildscript {
+    dependencies {
+        // Fat jar files generated from subprojects. Must be copied manually from their build/libs directories.
+        classpath files('libs/equino-commons-all.jar')
+        classpath files('libs/equino-version-all.jar')
+//        classpath files('libs/equino-publish-all.jar')
+//        classpath files('libs/equino-docker-all.jar')
+//        classpath files('libs/equino-properties-all.jar')
+//        classpath files('libs/equino-nexus-all.jar')
+    }
+}
+
+plugins {
+    id 'com.github.johnrengelman.shadow' version '6.1.0' apply false
+}
+
+//apply plugin: 'ovh.equino.docker'
+apply plugin: 'ovh.equino.version'
+//apply plugin: 'ovh.equino.properties'
+//apply plugin: 'ovh.equino.nexus'
+
+//repositories {
+//    equinoMaven()
+//}
+
+subprojects {
+    apply plugin: 'groovy'
+    apply plugin: 'java-gradle-plugin'
+    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'maven-publish'
+    // https://imperceptiblethoughts.com/shadow/plugins/#special-handling-of-the-java-gradle-plugin-development-plugin
+//    apply plugin: 'ovh.equino.publish'
+
+    group = 'ovh.equino.gradle'
+
+    sourceCompatibility = 17
+    targetCompatibility = 17
+
+    dependencies {
+        shadow localGroovy()
+        shadow gradleApi()
+    }
+
+    tasks.jar.finalizedBy shadowJar
+
+
+    publishing {
+        repositories {
+            maven {
+                name = "EquinoNexus"
+                url = "https://nexus.cloud.equino.ovh/repository/m2"
+                credentials {
+                    username = project.findProperty("equinoNexus.username")
+                    password = project.findProperty("equinoNexus.password")
+                }
+            }
+        }
+    }
+}
+
+//import static ovh.equino.gradle.plugins.docker.config.DeployMode.DOCKER_NO_REGISTRY
+//import static ovh.equino.gradle.plugins.docker.config.DockerServer.LOCAL
+//import static ovh.equino.gradle.plugins.docker.config.OperatingSystem.DEBIAN
+//import static ovh.equino.gradle.plugins.docker.config.RestartPolicy.UNLESS_STOPPED
+
+//equinoProperties {
+//    propertiesDirectory = 'resources/buildscript_properties'
+//    propertiesSuffix = '_project.properties'
+//    prefixProperty = 'welcomeMessage'
+//    defaultPrefix = 'DEFAULT'
+//}
+
+//equinoDocker {
+//    buildServer = LOCAL
+//    deployServer = LOCAL
+//    deployMode = DOCKER_NO_REGISTRY
+//    image {
+//        name = 'equino-docker-test-image'
+//        baseImage = 'nginx:1.23.2'
+//        rootCommands = ['/bin/true', 'chmod a+x /script.sh']
+//        copyFiles = [
+//                'resources/test/config'          : '/config', // entire directory
+//                'resources/bash/script/script.sh': '/script.sh' // single file
+//        ]
+//        exposedPorts = [8080]
+//        createLatestTag = true
+//        environmentVariables = [
+//                'ENV1': 'VAL1'
+//        ]
+//        os = DEBIAN
+//        packagesToInstall = ['cron', 'net-tools']
+//    }
+//    container {
+//        name = 'equino-docker-test-container'
+//        hostName = 'equino-docker-test-host-name'
+//        user = 'root'
+//        portBindings = [
+//                8443: 8080
+//        ]
+//        restartPolicy = UNLESS_STOPPED
+//        ramMegaBytes = 96
+//        environmentVariables = [
+//                'ENV2': 'VAL2'
+//        ]
+//        healthcheck {
+//            commands = [
+//                    'echo "$ENV1" | grep VAL1',
+//                    'echo "$ENV2" | grep VAL2'
+//            ]
+//            intervalSeconds = 10
+//            timeoutSeconds = 3
+//            startPeriodSeconds = 10
+//            retries = 3
+//        }
+//        bindedVolumes = [
+//                "${file('resources/bindedDir1').absolutePath}": '/test1/',
+//                "${file('resources/bindedDir2').absolutePath}": '/test2/'
+//        ]
+////        dataVolumes = ['/data1/', '/data2/']
+////        backup {
+////            snapshotsLimit = 3
+////        }
+//        crontabEntries = [
+//                '* * * * * date >> /date_cron;',
+//                '*/5 * * * * uname >> /uname_cron;'
+//        ]
+//        noRestartRequiringCommands = [
+//                'cmdNoRestart'   : 'date >> /date_cmd',
+//                'scriptNoRestart': '/script.sh'
+//        ]
+//        restartRequiringCommands = ['cmdWithRestart': 'uname >> /uname_cmd']
+//        restartPolicy = UNLESS_STOPPED
+//    }
+//}
+
+
+// PLUGINS TESTING:
+
+//tasks.register ('test', DefaultTask)
+//
+//tasks.create('testDockerNoRegistryDeployMode', DefaultTask) {
+//    dependsOn('deploy')
+//}
+//
+//tasks.create('testCleanUp', DefaultTask) {
+//    dependsOn('stopDockerContainer', 'removeDockerContainer', 'removeDockerImages')
+//}
+//
+//tasks.create('printWelcomeMessage', DefaultTask) {
+//    doLast {
+//        println stringProperty('welcome.message')
+//    }
+//}
+//
+//tasks.test.dependsOn('printWelcomeMessage')
+//tasks.test.dependsOn('testDockerNoRegistryDeployMode')

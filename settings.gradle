@@ -1,0 +1,8 @@
+rootProject.name = 'equino-gradle-plugins'
+
+include 'equino-commons'
+include 'equino-version'
+//include 'equino-properties'
+//include 'equino-publish'
+//include 'equino-docker'
+//include 'equino-nexus'

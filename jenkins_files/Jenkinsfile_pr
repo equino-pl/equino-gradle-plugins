@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'jdk17'
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    stages {
+
+        stage('Check release readiness') {
+            steps {
+                sh './gradlew --no-daemon --stacktrace verifyRelease'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'printenv'
+                sh './gradlew --no-daemon --stacktrace clean build test'
+                script {
+                    currentBuild.displayName = readFile file: 'build/ovh.equino.version/currentVersion'
+                }
+            }
+        }
+
+        stage('Publish') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'EquinoNexus', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh './gradlew --no-daemon --stacktrace publish -x build -x jar -x shadowJar -PequinoNexus.username=${USERNAME} -PequinoNexus.password=${PASSWORD}'
+                }
+            }
+        }
+
+    }
+
+    post {
+        cleanup {
+            deleteDir()
+        }
+    }
+}
