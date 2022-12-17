@@ -5,7 +5,7 @@ buildscript {
         classpath files('libs/equino-version-all.jar')
 //        classpath files('libs/equino-publish-all.jar')
 //        classpath files('libs/equino-docker-all.jar')
-//        classpath files('libs/equino-properties-all.jar')
+        classpath files('libs/equino-properties-all.jar')
 //        classpath files('libs/equino-nexus-all.jar')
     }
 }
@@ -42,7 +42,6 @@ subprojects {
     }
 
     tasks.jar.finalizedBy shadowJar
-
 
     publishing {
         repositories {
