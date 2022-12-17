@@ -21,6 +21,7 @@ pipeline {
 
         stage('Upgrade version') {
             steps {
+                sh 'git branch -m ${CHANGE_BRANCH}'
                 withCredentials([string(credentialsId: 'JenkinsGitHubPluginClassicToken', variable: 'TOKEN')]) {
                     sh './gradlew --no-daemon --stacktrace clean release -PequinoVersion.gitUsername=$GH_ACTOR -PequinoVersion.gitPassword=$TOKEN'
                 }
