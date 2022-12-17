@@ -1,0 +1,16 @@
+gradlePlugin {
+    plugins {
+        dockerPlugin {
+            id = 'ovh.equino.properties'
+            implementationClass = 'ovh.equino.gradle.plugins.properties.EquinoPropertiesPlugin'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':equino-commons')
+}
