@@ -18,6 +18,7 @@ pipeline {
         stage('Check release readiness') {
             steps {
                 sh 'printenv'
+                sh 'git branch -m ${CHANGE_BRANCH}'
                 sh './gradlew --no-daemon --stacktrace verifyRelease'
             }
         }
