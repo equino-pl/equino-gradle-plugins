@@ -23,8 +23,8 @@ pluginManagement {
             name 'mavenEquinoSnapshot'
             url 'https://maven.cloud.equino.ovh/equinoSnapshot'
             credentials {
-                username settings.'mavenEquinoSnapshotUsername'
-                password settings.'mavenEquinoSnapshotPassword'
+                username settings.'mavenEquinoUsername'
+                password settings.'mavenEquinoPassword'
             }
         }
     }
