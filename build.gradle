@@ -1,3 +1,5 @@
+import static java.util.Optional.ofNullable
+
 buildscript {
     dependencies {
         // Fat jar files generated from subprojects. Must be copied manually from their build/libs directories.
@@ -46,11 +48,12 @@ subprojects {
     publishing {
         repositories {
             maven {
-                name = "EquinoReposilite"
-                url = "https://reposilite.cloud.equino.ovh/equino"
+                name = "equinoMaven"
+                url = ofNullable(project.findProperty("equinoMaven.url"))
+                        .orElse("https://reposilite.cloud.equino.ovh/equinoSnapshot")
                 credentials {
-                    username = project.findProperty("equinoReposilite.username")
-                    password = project.findProperty("equinoReposilite.password")
+                    username = project.findProperty("equinoMaven.username")
+                    password = project.findProperty("equinoMaven.password")
                 }
             }
         }
