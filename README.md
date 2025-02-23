@@ -3,18 +3,18 @@ See readme of plugins of interest:
 [equino-properties](equino-properties/README.md)    
 [equino-version](equino-version/README.md)  
 
-Each plugin may be used as a dependency from Equino Nexus. 
-Credentials to Nexus repository should be kept in local $GRADLE_HOME/gradle.properties  
+Each plugin may be used as a dependency from Equino Maven repository. 
+Credentials to Maven repository should be kept in local $GRADLE_HOME/gradle.properties  
 
 settings.gradle:
 ```
 pluginManagement {
     repositories {
         maven {
-            url 'https://nexus.cloud.equino.ovh/repository/m2'
+            url 'https://reposilite.cloud.equino.ovh/equino'
             credentials {
-                username settings.'equinoNexus.username'
-                password settings.'equinoNexus.password'
+                username settings.'equinoReposilite.username'
+                password settings.'equinoReposilite.password'
             }
         }
         gradlePluginPortal()

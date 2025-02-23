@@ -46,11 +46,11 @@ subprojects {
     publishing {
         repositories {
             maven {
-                name = "EquinoNexus"
-                url = "https://nexus.cloud.equino.ovh/repository/m2"
+                name = "EquinoReposilite"
+                url = "https://reposilite.cloud.equino.ovh/equino"
                 credentials {
-                    username = project.findProperty("equinoNexus.username")
-                    password = project.findProperty("equinoNexus.password")
+                    username = project.findProperty("equinoReposilite.username")
+                    password = project.findProperty("equinoReposilite.password")
                 }
             }
         }
