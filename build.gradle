@@ -48,12 +48,12 @@ subprojects {
     publishing {
         repositories {
             maven {
-                name = "equinoMaven"
-                url = ofNullable(project.findProperty("equinoMaven.url"))
-                        .orElse("https://reposilite.cloud.equino.ovh/equinoSnapshot")
+                name = "mavenEquino"
+                url = ofNullable(project.findProperty("mavenEquinoUrl"))
+                        .orElse("https://maven.cloud.equino.ovh/equinoSnapshot")
                 credentials {
-                    username = project.findProperty("equinoMaven.username")
-                    password = project.findProperty("equinoMaven.password")
+                    username = project.findProperty("mavenEquinoUsername")
+                    password = project.findProperty("mavenEquinoPassword")
                 }
             }
         }
