@@ -17,8 +17,6 @@ pipeline {
         buildDiscarder(logRotator(daysToKeepStr: '10'))
     }
 
-    environments here
-
     stages {
 
         stage('Upgrade version') {

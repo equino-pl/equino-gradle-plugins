@@ -9,8 +9,6 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '10'))
     }
 
-    environments here
-
     stages {
 
         stage('Check release readiness') {
