@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        GH_ORG = 'marcinciapa'
+        GH_ORG = 'equino-pl'
         GH_REPO = 'equino-gradle-plugins'
     }
 

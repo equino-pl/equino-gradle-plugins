@@ -19,17 +19,10 @@ pluginManagement {
                 password settings.'mavenEquinoPassword'
             }
         }
-        maven {
-            name 'mavenEquinoSnapshot'
-            url 'https://maven.cloud.equino.ovh/equinoSnapshot'
-            credentials {
-                username settings.'mavenEquinoUsername'
-                password settings.'mavenEquinoPassword'
-            }
-        }
     }
 }
 ```
+
 build.gradle:
 ```
 plugins {
