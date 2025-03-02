@@ -22,6 +22,7 @@ pluginManagement {
     }
 }
 ```
+
 build.gradle:
 ```
 plugins {
